@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>PinMsg | Fija mensajes en pantalla | &#x1F61D;</title>
+    <style>
+
+        *{
+            margin: 0;
+            padding: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 7px;
+            background-color: #24272c;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #bbbbbb;
+            background-color: transparent;
+            border-radius: 7px;
+        }
+
+        .Main{
+            font-family: "Inter", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 400;
+            font-style: normal;
+            font-variation-settings: "slnt" 0;
+            background-color: #24272c;
+        }
+
+        .Chat__header{
+            height: 4rem;
+            background-color: #53fc18;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: .750rem;
+        }
+
+        .Chat__main{
+            display: flex;
+            height: calc(100vh - 4rem);
+        }
+
+        .Chat__body--wrapper{
+            width: 50%;
+            padding: 2rem 1rem;
+            padding-bottom: 4rem;
+            overflow: hidden;
+            display: flex;
+            position: relative;
+        }
+        
+        .Chat__body{
+            width: 100%;
+            font-size: 1.5rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: .750rem;
+            padding-right: 1.5rem;
+        }
+
+        .Chat__pause{
+            position: absolute;
+            bottom: 125px;
+            left: 0;
+            border: solid 1px rgba(255,255,255,.3);
+            right: 0;
+            margin: auto;
+            z-index: 667;
+            cursor: pointer;
+            background: rgba(0,0,0,.6);
+            display: none;
+            justify-content: center;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.8rem 0;
+            font-size: 1.2rem;
+            width: 60%;
+            color: #fff;
+        }
+
+        .Chat__username{
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-bottom: .750rem;
+        }
+
+        .Chat__message{
+            cursor: pointer;
+            color: #fff;
+            position: relative;
+            padding: .5rem;
+            border: solid 1px transparent;
+            overflow-wrap: break-word;
+        }
+
+        .Chat__message:active{
+            background: rgba(255,255,255,.2);
+        }
+
+        .Chat__message:hover{
+            border: solid 1px rgba(255,255,255,.3);
+        }
+
+        .Chat__message:hover .Chat__pin{
+            visibility: visible;
+        }
+
+        .Chat__message h3{
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .Chat__message p{
+            font-size: .850rem;
+            line-height: 1.5;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 7px;
+            max-width: 90%;
+            word-break: break-word;
+        }
+
+        .Chat__pin{
+            position: absolute;
+            width: fit-content;
+            right: 10px;
+            top: 10px;
+            visibility: hidden;
+        }
+
+        .Chat__pin--show{
+            visibility: visible;
+        }
+
+        .PinMsg{
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .PinMsg__main{
+            flex-basis: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .PinMsg__widget{
+            width: 80%;
+            padding: 1rem;
+            border-radius: .250rem;
+            background-color: rgba(255,255,255,.2);
+            border: solid 1px rgba(255,255,255,.5);
+            color: #fff;
+            position: relative;
+        }
+
+        .PinMsg__widget div{
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-bottom: .750rem;
+        }
+
+        .PinMsg__widget p{
+            font-size: .850rem;
+            line-height: 1.7;
+            max-width: 95%;
+            word-break: break-word;
+            margin: 0;
+            display: -webkit-box;
+            line-clamp: 4;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            max-height: 200px;
+        }
+
+        .PinMsg__widget p > img{
+            margin-right: 5px; 
+            margin-bottom: 10px;
+            display: inline;
+            vertical-align: middle;
+        }
+
+        .PinMsg__widget h3{
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .PinMsg__buttons{
+            display: flex;
+            justify-content: center;
+        }
+
+        .PinMsg__buttons button{
+            width: 100%;
+            border: solid 1px #36ba0792;
+            outline: none;
+            border-radius: .5rem;
+            background-color: #53fc18;
+            padding: .5rem 3rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .PinMsg__ads{
+            flex-basis: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .PinMsg__thumbnail{
+            width: 90%;
+            height: 80%;
+            position: relative;
+        }
+
+        .PinMsg__ads img{
+            width: 100%;
+            height: 100%;
+            filter: grayscale(100%);
+        }
+
+        .PinMsg__ads .icon-corner{
+            position: absolute;
+            z-index: 999;
+        }
+
+        .PinMsg__ads .top-left-corner { 
+            top: 0;
+            left: 0;
+            transform: rotate(-180deg) rotateY(180deg);
+        }
+
+        .PinMsg__ads .top-right-corner { 
+            top: 0;
+            right: 0;
+            transform: rotate(180deg);
+        }
+
+        .PinMsg__ads .bottom-right-corner {
+             bottom: 0;
+             right: 0;
+             transform: rotate(360deg) rotateY(180deg);
+        }
+        
+        .PinMsg__ads .bottom-left-corner { 
+            bottom: 0;
+            left: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="Main">
+    <header class="Chat__header">
+        <svg width="78" height="33" viewBox="0 0 78 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0H8.26393V5.71333H11.0186V2.85667H13.7732V0H22.0371V8.57H19.2825V11.4267H16.5279V14.2833H19.2825V17.14H22.0371V25.71H13.7732V22.8533H11.0186V19.9967H8.26393V25.71H0V0ZM55.0929 0H63.3568V5.71333H66.1114V2.85667H68.8661V0H77.13V8.57H74.3754V11.4267H71.6207V14.2833H74.3754V17.14H77.13V25.71H68.8661V22.8533H66.1114V19.9967H63.3568V25.71H55.0929V0ZM24.7918 0H33.0557V25.71H24.7918V0ZM44.0743 0H38.565V2.85667H35.8104V22.8533H38.565V25.71H44.0743H52.3382V17.14H44.0743V8.57H52.3382V0H44.0743Z" fill="#24272c"></path>
+        </svg>
+    </header>
+    <div class="Chat__main">
+        <div class="Chat__body--wrapper">
+            <div class="Chat__body" id="Chat">
+            </div>
+            <div class="Chat__pause" id="btnChatPause">
+                <svg width="25" height="25" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 3H3V13H7V3Z" fill="currentColor"></path><path d="M13 3H9V13H13V3Z" fill="currentColor"></path></svg>
+                <span>Chat Pausado</span>
+            </div>
+        </div>
+        <div class="PinMsg">
+            <div class="PinMsg__main" id="boxPinMsg"></div>
+            <div id="pinMsgAd" class="PinMsg__ads"></div>
+        </div>
+    </div>
+    
+</div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+    const socket = io();
+    socket.emit('connect-room', "<%= privateKey %>");
+    const boxChat = document.getElementById('Chat');
+    const boxPinMsg = document.getElementById('boxPinMsg');
+    const socketChat = new WebSocket("wss://ws-us2.pusher.com/app/eb1d5f283081a78b932c?protocol=7&client=js&version=7.6.0&flash=false");
+    const pinMsgAd = document.getElementById('pinMsgAd');
+    const btnChatPause = document.getElementById('btnChatPause');
+    let chatPause = false;
+    
+    function generateEmotes(text) {
+      const regex = /\[emote:(.*?):(.*?)\]/g;
+      return text.replaceAll(regex, (match,emotion,name) => `<img width="28" src="https://files.kick.com/emotes/${emotion}/fullsize" alt="${name}">`)
+    }
+
+    function generateThumbnail(username){
+        fetch(`https://kick.com/api/v1/channels/${username}/`)
+        .then(res => res.json())
+        .then((data) => {
+            
+            const thumbnailUrl = data.livestream?.thumbnail?.url
+            
+            pinMsgAd.innerHTML = `
+            <div class="PinMsg__thumbnail">
+                <svg class="icon-corner top-left-corner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 12" width="30" height="30"><path fill="#53FC18" d="M0 0h3v9h9v3H0V0z"></path></svg>
+                <svg class="icon-corner top-right-corner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 12" width="30" height="30"><path fill="#53FC18" d="M0 0h3v9h9v3H0V0z"></path></svg>
+                <img src="${thumbnailUrl}" alt="Thumbnail del stream en Kick">
+                <svg class="icon-corner bottom-left-corner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 12" width="30" height="30"><path fill="#53FC18" d="M0 0h3v9h9v3H0V0z"></path></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 12" width="30" height="30" class="icon-corner bottom-right-corner"><path fill="#53FC18" d="M0 0h3v9h9v3H0V0z"></path></svg>
+            </div>
+            `;
+
+        })
+        .catch(err => console.log(err))
+    }
+
+    boxChat.addEventListener('scroll', () => {
+        const currentScroll = boxChat.scrollTop + boxChat.clientHeight;
+        const marginScroll = 150;
+        const totalScroll = boxChat.scrollHeight;
+
+        if ((currentScroll + marginScroll) < totalScroll) {
+            chatPause = true;
+        } else {
+            chatPause = false;
+        }
+    })
+
+    btnChatPause.addEventListener('click', () => chatPause = false);
+
+    boxChat.addEventListener('click', (event) => {
+
+        const Message = event.target.closest('.Chat__message');
+        
+        if(Message){
+
+            const text = Message.getElementsByClassName('text-hidden')[0].textContent;
+            const username = Message.getElementsByTagName('h3')[0].textContent
+            const userColor = Message.getElementsByTagName('h3')[0].style.color;
+            const isVerified = Message.getElementsByTagName('h3')[0].dataset.verified === '0' ? false : true;
+            const isVip = Message.getElementsByTagName('h3')[0].dataset.vip === '0' ? false : true;
+            const isModerator = Message.getElementsByTagName('h3')[0].dataset.moderator === '0' ? false : true;
+
+            const data = {
+                showMessage: true,
+                text,
+                username,
+                userColor,
+                isVerified,
+                isVip,
+                isModerator
+            }          
+
+            socket.emit('pin-msg', data)
+
+        }
+    });
+
+    socket.on("pin-msg", (data) => {
+
+        if(data.showMessage){
+
+        const messagePinHTML = `
+        <div class="PinMsg__widget">
+            
+            <div>
+
+            ${data.isModerator ? `<svg version="1.1"x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve" width="16" height="16"><path d="M11.7,1.3v1.5h-1.5v1.5H8.7v1.5H7.3v1.5H5.8V5.8h-3v3h1.5v1.5H2.8v1.5H1.3v3h3v-1.5h1.5v-1.5h1.5v1.5h3v-3H8.7V8.7h1.5V7.3h1.5V5.8h1.5V4.3h1.5v-3C14.7,1.3,11.7,1.3,11.7,1.3z" style="fill: rgb(0, 199, 255);"></path></svg>`: ''}
+
+            ${data.isVip ? `<svg version="1.1" x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve" width="16" height="16"><linearGradient id="badge-vip-gradient" gradientUnits="userSpaceOnUse" x1="8" y1="-163.4867" x2="8" y2="-181.56" gradientTransform="matrix(1 0 0 -1 0 -164)"><stop offset="0" style="stop-color: rgb(255, 201, 0);"></stop><stop offset="0.99" style="stop-color: rgb(255, 149, 0);"></stop></linearGradient><path d="M13.9,2.4v1.1h-1.2v2.3h-1.1v1.1h-1.1V4.6H9.3V1.3H6.7v3.3H5.6v2.3H4.4V5.8H3.3V3.5H2.1V2.4H0v12.3h16V2.4H13.9z" style="fill: url(&quot;#badge-vip-gradient&quot;);"></path></svg>` : ''}
+
+            ${data.isVerified ? `<svg data-v-e4d376bf="" width="16" height="16" viewBox="0 0 16 16" fill="rgb(83 252 24)" xmlns="http://www.w3.org/2000/svg"><path d="M16 6.83512L13.735 4.93512L13.22 2.02512H10.265L8 0.120117L5.735 2.02012H2.78L2.265 4.93012L0 6.83512L1.48 9.39512L0.965 12.3051L3.745 13.3151L5.225 15.8751L8.005 14.8651L10.785 15.8751L12.265 13.3151L15.045 12.3051L14.53 9.39512L16.01 6.83512H16ZM6.495 12.4051L2.79 8.69512L4.205 7.28012L6.495 9.57512L11.29 4.78012L12.705 6.19512L6.5 12.4001L6.495 12.4051Z"></path></svg>` : ''}
+
+            <h3 style="color: ${data.userColor}">${data.username}</h3>
+
+            </div>
+
+            <p>${generateEmotes(data.text)}</p>
+
+            <div class="Chat__pin Chat__pin--show">
+            <svg fill="rgb(255,255,255)" height="20" width="20" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490.125 490.125" xml:space="preserve"><path d="M300.625,5.025c-6.7-6.7-17.6-6.7-24.3,0l-72.6,72.6c-6.7,6.7-6.7,17.6,0,24.3l16.3,16.3l-40.3,40.3l-63.5-7c-3-0.3-6-0.5-8.9-0.5c-21.7,0-42.2,8.5-57.5,23.8l-20.8,20.8c-6.7,6.7-6.7,17.6,0,24.3l108.5,108.5l-132.4,132.4c-6.7,6.7-6.7,17.6,0,24.3c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5l132.5-132.5l108.5,108.5c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5l20.8-20.8c17.6-17.6,26.1-41.8,23.3-66.4l-7-63.5l40.3-40.3l16.2,16.2c6.7,6.7,17.6,6.7,24.3,0l72.6-72.6c3.2-3.2,5-7.6,5-12.1s-1.8-8.9-5-12.1L300.625,5.025z M400.425,250.025l-16.2-16.3c-6.4-6.4-17.8-6.4-24.3,0l-58.2,58.3c-3.7,3.7-5.5,8.8-4.9,14l7.9,71.6c1.6,14.3-3.3,28.3-13.5,38.4l-8.7,8.7l-217.1-217.1l8.7-8.6c10.1-10.1,24.2-15,38.4-13.5l71.7,7.9c5.2,0.6,10.3-1.2,14-4.9l58.2-58.2c6.7-6.7,6.7-17.6,0-24.3l-16.3-16.3l48.3-48.3l160.3,160.3L400.425,250.025z"></path></svg>
+            </div>
+
+        </div>
+        <div class="PinMsg__buttons">
+            <button id="btnUnpin">Desfijar</button>
+        </div>
+        `;
+
+        boxPinMsg.innerHTML = messagePinHTML;
+
+        gsap.fromTo(boxPinMsg, 
+            { opacity: 0 },
+            { opacity: 1, duration: 1 }
+        );
+
+        document.getElementById('btnUnpin').addEventListener('click', () => {
+            socket.emit('pin-msg', { showMessage: false })
+        })
+
+        }else{
+            gsap.fromTo(boxPinMsg, 
+            { opacity: 1 },
+            { opacity: 0, duration: 1 }
+            );
+        }
+
+    });
+
+    socketChat.addEventListener('open', () => {
+
+        generateThumbnail('<%= username %>');
+
+        console.log('Conectado al Chat de Kick');
+        
+        const data = {
+            event: "pusher:subscribe",
+            data: {
+                "channel": "chatrooms.<%= chatroomId %>.v2"
+            }
+        }
+
+        socketChat.send(JSON.stringify(data));
+        
+    });
+
+    socketChat.addEventListener('message', (event) => {
+        
+        let data = JSON.parse(event.data)
+
+        if (data.event === "App\\Events\\ChatMessageEvent"){
+
+            let message = JSON.parse(data.data)
+
+            if(boxChat.childElementCount > 300){
+
+                for (let i = 0; i < 100; i++) {
+                    if (boxChat.firstChild) {
+                        boxChat.removeChild(boxChat.firstChild);
+                    }
+                }
+
+            }
+
+            const badges = message.sender.identity.badges;
+            const isVip = badges.findIndex(index => index.type === 'vip');
+            const isVerified = badges.findIndex(index => index.type === 'verified');
+            const isModerator = badges.findIndex(index => index.type === 'moderator');
+            const htmlMessage = `
+
+            <div class="Chat__message">
+                <div class="Chat__username">
+
+                ${isModerator !== -1 ? `<svg version="1.1"x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve" width="16" height="16"><path d="M11.7,1.3v1.5h-1.5v1.5H8.7v1.5H7.3v1.5H5.8V5.8h-3v3h1.5v1.5H2.8v1.5H1.3v3h3v-1.5h1.5v-1.5h1.5v1.5h3v-3H8.7V8.7h1.5V7.3h1.5V5.8h1.5V4.3h1.5v-3C14.7,1.3,11.7,1.3,11.7,1.3z" style="fill: rgb(0, 199, 255);"></path></svg>`: ''}
+
+                ${isVip !== -1 ? `<svg version="1.1" x="0px" y="0px" viewBox="0 0 16 16" xml:space="preserve" width="16" height="16"><linearGradient id="badge-vip-gradient" gradientUnits="userSpaceOnUse" x1="8" y1="-163.4867" x2="8" y2="-181.56" gradientTransform="matrix(1 0 0 -1 0 -164)"><stop offset="0" style="stop-color: rgb(255, 201, 0);"></stop><stop offset="0.99" style="stop-color: rgb(255, 149, 0);"></stop></linearGradient><path d="M13.9,2.4v1.1h-1.2v2.3h-1.1v1.1h-1.1V4.6H9.3V1.3H6.7v3.3H5.6v2.3H4.4V5.8H3.3V3.5H2.1V2.4H0v12.3h16V2.4H13.9z" style="fill: url(&quot;#badge-vip-gradient&quot;);"></path></svg>` : ''}
+
+                ${isVerified !== -1 ? `<svg data-v-e4d376bf="" width="16" height="16" viewBox="0 0 16 16" fill="rgb(83 252 24)" xmlns="http://www.w3.org/2000/svg"><path d="M16 6.83512L13.735 4.93512L13.22 2.02512H10.265L8 0.120117L5.735 2.02012H2.78L2.265 4.93012L0 6.83512L1.48 9.39512L0.965 12.3051L3.745 13.3151L5.225 15.8751L8.005 14.8651L10.785 15.8751L12.265 13.3151L15.045 12.3051L14.53 9.39512L16.01 6.83512H16ZM6.495 12.4051L2.79 8.69512L4.205 7.28012L6.495 9.57512L11.29 4.78012L12.705 6.19512L6.5 12.4001L6.495 12.4051Z"></path></svg>` : ''}
+
+                <h3 data-moderator="${isModerator !== -1 ? "1":"0"}" data-verified="${isVerified !== -1 ? "1":"0"}" data-vip="${isVip !== -1 ? "1":"0"}" style="color: ${message.sender.identity.color}">${message.sender.username}:</h3>
+                    
+                </div>
+
+                <p style="display: none;" class="text-hidden">${message.content}</p>
+
+                <p>${generateEmotes(message.content)}</p>
+
+                <div class="Chat__pin">
+                <svg fill="rgb(255,255,255)" height="20" width="20" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 490.125 490.125" xml:space="preserve"><path d="M300.625,5.025c-6.7-6.7-17.6-6.7-24.3,0l-72.6,72.6c-6.7,6.7-6.7,17.6,0,24.3l16.3,16.3l-40.3,40.3l-63.5-7
+				c-3-0.3-6-0.5-8.9-0.5c-21.7,0-42.2,8.5-57.5,23.8l-20.8,20.8c-6.7,6.7-6.7,17.6,0,24.3l108.5,108.5l-132.4,132.4
+				c-6.7,6.7-6.7,17.6,0,24.3c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5l132.5-132.5l108.5,108.5c3.3,3.3,7.7,5,12.1,5s8.8-1.7,12.1-5
+				l20.8-20.8c17.6-17.6,26.1-41.8,23.3-66.4l-7-63.5l40.3-40.3l16.2,16.2c6.7,6.7,17.6,6.7,24.3,0l72.6-72.6c3.2-3.2,5-7.6,5-12.1
+				s-1.8-8.9-5-12.1L300.625,5.025z M400.425,250.025l-16.2-16.3c-6.4-6.4-17.8-6.4-24.3,0l-58.2,58.3c-3.7,3.7-5.5,8.8-4.9,14
+				l7.9,71.6c1.6,14.3-3.3,28.3-13.5,38.4l-8.7,8.7l-217.1-217.1l8.7-8.6c10.1-10.1,24.2-15,38.4-13.5l71.7,7.9
+				c5.2,0.6,10.3-1.2,14-4.9l58.2-58.2c6.7-6.7,6.7-17.6,0-24.3l-16.3-16.3l48.3-48.3l160.3,160.3L400.425,250.025z"></path></svg>
+                </div>
+            </div>
+            `;
+
+            boxChat.insertAdjacentHTML('beforeend', htmlMessage);
+
+            if (!chatPause){
+                boxChat.scrollTop = boxChat.scrollHeight;
+                btnChatPause.style.display = "none";
+            }else{
+                btnChatPause.style.display = "flex";
+            }
+
+        }
+        
+      });
+
+      socketChat.addEventListener('close', () => {
+        alert("Error al cargar el chat de Kick, recarga la pagina (F5)")
+      });
+
+      socketChat.addEventListener('error', (error) => {
+        alert("Error al cargar el chat de Kick, recarga la pagina (F5)")
+      });
+
+    </script>
+</body>
+</html>

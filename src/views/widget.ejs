@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+
+      :root {
+        --color-kick: #53fc18;
+        --size-bottom: 110px;
+      }
+
+      .Widget {
+        margin: 0;
+        padding: 0;
+        display: grid;
+        width: 100%;
+        height: 100vh;
+        background: transparent;
+        overflow: hidden;
+      }
+
+      .Message {
+        position: relative;
+        transition: all .5s ease-in-out;
+        margin-bottom: -500px;
+        align-self: end;
+        justify-self: center;
+        border-radius: 1.5rem;
+        background: #24272c;
+        box-shadow: 15px 20px var(--color-kick);
+        color: #fff;
+        font-family: "Inter", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+        font-variation-settings: "slnt" 0;
+        padding: 1.5rem 2.5rem;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        min-width: 25%;
+        max-width: 40%;
+      }
+
+      .Message__content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+
+      .Message__text {
+        font-size: 1.650rem;
+        line-height: 1.7;
+        margin: 0;
+        word-break: break-word;
+        display: -webkit-box;
+        line-clamp: 4;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        max-height: 250px;
+      }
+
+      .Message__text img{
+        margin-right: 5px; 
+        margin-bottom: 10px;
+        display: inline;
+        vertical-align: middle;
+      }
+
+      .Message__username {
+        display: flex;
+        align-items: center;
+        gap: .850rem;
+      }
+
+      .Message__user {
+        color: #fff;
+        font-size: 1.9rem;
+        font-weight: 700;
+      }
+
+      .slide-in{
+        margin-bottom: 110px;
+      }
+
+    </style>
+  </head>
+  <body class="Widget">
+    <div class="Message" id="Widget">
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+      const socket = io();
+      const widget = document.getElementById("Widget");
+      const text = document.getElementById("text");
+      const username = document.getElementById("username");
+      const iconVerified = document.getElementById("iconVerified");
+      const iconModerator = document.getElementById("iconModerator");
+
+      socket.emit("connect-room", "<%= privateKey %>");
+
+      function generateEmotes(text) {
+        const regex = /\[emote:(.*?):(.*?)\]/g;
+        return text.replaceAll(regex, (match, emotion, name) => `<img width="50" src="https://files.kick.com/emotes/${emotion}/fullsize" alt="${name}">`)
+      }
+
+      socket.on("pin-msg", (data) => {
+
+        if (data.showMessage){
+
+          const messageElement = `
+          <div class="Message__content">
+            <div class="Message__username">
+
+            ${data.isVerified ?
+              '<svg id="iconVerified" width="35" height="35" fill="var(--color-kick)" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M16 6.83512L13.735 4.93512L13.22 2.02512H10.265L8 0.120117L5.735 2.02012H2.78L2.265 4.93012L0 6.83512L1.48 9.39512L0.965 12.3051L3.745 13.3151L5.225 15.8751L8.005 14.8651L10.785 15.8751L12.265 13.3151L15.045 12.3051L14.53 9.39512L16.01 6.83512H16ZM6.495 12.4051L2.79 8.69512L4.205 7.28012L6.495 9.57512L11.29 4.78012L12.705 6.19512L6.5 12.4001L6.495 12.4051Z"></path></svg>'
+            : ""}
+
+            <span style="color: ${data.userColor}" id="username" class="Message__user">
+              ${data.username}
+            </span>
+
+            </div>
+
+            <p id="text" class="Message__text">
+              ${generateEmotes(data.text)}
+            </p>
+
+          </div>`;
+
+          if(widget.childElementCount > 0){
+            widget.classList.remove('slide-in')
+          }
+
+          setTimeout(() => {
+              widget.innerHTML = messageElement;
+              widget.classList.add('slide-in')
+          }, 500);
+        
+        }else{
+          widget.classList.remove('slide-in')
+        }
+
+        
+        
+        
+      });
+
+    </script>
+  </body>
+</html>
